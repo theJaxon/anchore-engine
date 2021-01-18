@@ -4,7 +4,7 @@ Deploying anchore-engine using Kubernetes
 ![K8s](https://img.shields.io/badge/-kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
 ![postgres](https://img.shields.io/badge/-Postgres-005571?style=for-the-badge&logo=PostgreSQL&logoColor=white)
 
-[Anchor](https://github.com/anchore/anchore-engine) is a service that analyzes docker images and applies user-defined acceptance policies to allow automated container image validation and certification 
+[Anchore](https://github.com/anchore/anchore-engine) is a service that analyzes docker images and applies user-defined acceptance policies to allow automated container image validation and certification 
 
 #### :small_blue_diamond: Anchore engine architecture - from Sysdig [ kubernetes security guide](https://sysdig.com/blog/kubernetes-security-guide/):
 Anchore Engine architecture is comprised of six components that can either be deployed ina single container or scaled out:
@@ -27,6 +27,8 @@ git clone https://github.com/theJaxon/anchore-engine.git
 # Apply the defined yaml files 
 k apply -f anchore-engine/
 ```
+
+:red_circle: for the persistent volume i rely on dynamic provisioning provided by [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
 
 ### :small_blue_diamond: Install [anchore-cli](https://github.com/anchore/anchore-cli):
 ```bash
