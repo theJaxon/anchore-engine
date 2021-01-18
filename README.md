@@ -13,9 +13,9 @@ Anchore Engine architecture is comprised of six components that can either be de
 3. Catalog Service: Internal database and system state service.
 4. Queuing Service: Organizes, persists and schedules the engine tasks.
 5. Policy Engine Service: Policy evaluation and vulnerabilities matching rules.
-6. Kubernetes Webhook Service: Kubernetes-specific webhook service to validate imagesbefore they are spawned.
+6. Kubernetes Webhook Service: Kubernetes-specific webhook service to validate images before they are spawned.
 
-
+![Anchore-architecture](https://github.com/theJaxon/anchore-engine/blob/main/etc/anchore-architecture.jpg)
 
 ---
 
