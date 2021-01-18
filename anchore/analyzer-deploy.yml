@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: analyzer
+  name: analyzer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analyzer
+  template:
+    metadata:
+      labels:
+        app: analyzer
+    spec:
+      volumes: 
+      - name: analyzer-v 
+        emptyDir: {}
+      containers:
+      - command:
+        - anchore-manager
+        - service
+        - start
+        - analyzer
+        image: anchore/anchore-engine:v0.9.0
+        name: anchore-engine
+        volumeMounts:
+        - name: analyzer-v 
+          mountPath: /analysis_scratch
+        ports:
+        - containerPort: 8228
+        env:
+        - name: ANCHORE_ENDPOINT_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app'] # analyzer
+        - name: ANCHORE_DB_HOST
+          value: postgres 
+        - name: ANCHORE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: anchore
+              key: POSTGRES_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: analyzer
+  name: analyzer
+spec:
+  ports:
+  - port: 8228
+    protocol: TCP
+    targetPort: 8228
+  selector:
+    app: analyzer

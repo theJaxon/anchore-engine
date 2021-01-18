@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: policy-engine
+  name: policy-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: policy-engine
+  template:
+    metadata:
+      labels:
+        app: policy-engine
+    spec:
+      containers:
+      - command:
+        - anchore-manager
+        - service
+        - start
+        - policy_engine
+        image: anchore/anchore-engine:v0.9.0
+        name: anchore-engine
+        ports:
+        - containerPort: 8228
+        env:
+        - name: ANCHORE_ENDPOINT_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app'] # policy-engine
+        - name: ANCHORE_DB_HOST
+          value: postgres 
+        - name: ANCHORE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: anchore
+              key: POSTGRES_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: policy-engine
+  name: policy-engine
+spec:
+  ports:
+  - port: 8228
+    protocol: TCP
+    targetPort: 8228
+  selector:
+    app: policy-engine

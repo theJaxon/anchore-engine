@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: queue
+  name: queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+      - command:
+        - anchore-manager
+        - service
+        - start
+        - simplequeue
+        image: anchore/anchore-engine:v0.9.0
+        name: anchore-engine
+        ports:
+        - containerPort: 8228
+        env:
+        - name: ANCHORE_ENDPOINT_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app'] # queue
+        - name: ANCHORE_DB_HOST
+          value: postgres
+        - name: ANCHORE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: anchore
+              key: POSTGRES_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: queue
+  name: queue
+spec:
+  ports:
+  - port: 8228
+    protocol: TCP
+    targetPort: 8228
+  selector:
+    app: queue

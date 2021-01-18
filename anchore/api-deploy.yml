@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - command:
+        - anchore-manager
+        - service
+        - start
+        - apiext
+        image: anchore/anchore-engine:v0.9.0
+        name: anchore-engine
+        env:
+        - name: ANCHORE_ENDPOINT_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app']
+        - name: ANCHORE_DB_HOST
+          value: postgres
+        - name: ANCHORE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: anchore
+              key: POSTGRES_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api
+  name: api
+spec:
+  ports:
+  - port: 8228
+    protocol: TCP
+    targetPort: 8228
+  selector:
+    app: api
+  type: ClusterIP
