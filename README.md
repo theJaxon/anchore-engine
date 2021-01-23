@@ -17,6 +17,11 @@ Anchore Engine architecture is comprised of six components that can either be de
 
 ![Anchore-architecture](https://github.com/theJaxon/anchore-engine/blob/main/etc/anchore-architecture.jpg)
 
+#### How image scanning tools work:
+- Image scanning tools extract the image file then looks for all available `packages` and `libraries`.
+- The version of these packages and libraries is compared against the vulnerability DB.
+- If any package version matches with any of the CVE descriptions in the DB then a vulnerability within the image is reported.
+
 ---
 
 ### :small_blue_diamond: Deploy anchore engine:
@@ -25,10 +30,14 @@ Anchore Engine architecture is comprised of six components that can either be de
 git clone https://github.com/theJaxon/anchore-engine.git
 
 # Apply the defined yaml files 
-k apply -f anchore-engine/
+k apply -f anchore-engine/anchore/
 ```
 
 :red_circle: for the persistent volume i rely on dynamic provisioning provided by [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
+```bash
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+```
+
 
 ### :small_blue_diamond: Install [anchore-cli](https://github.com/anchore/anchore-cli):
 ```bash
@@ -42,13 +51,11 @@ export PATH="$HOME/.local/bin/:$PATH"
 ### :small_blue_diamond: Interact with anchore using the CLI:
 1. Get the IP address of the `api` service 
 ```bash
-k get svc api
-NAME   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-api    ClusterIP   10.110.77.137   <none>        8228/TCP   15m
+api_ip=http://$(k get svc -l app=api -ojsonpath='{.items[0].spec.clusterIP}'):8228
 ```
 2. Add an image to the engine using the pre-defined credentials
 ```bash
-anchore-cli --u admin --p foobar --url http://<SVC-IP>:8228 image add ubuntu
+anchore-cli --u admin --p foobar --url $api_ip image add ubuntu
 
 # Wait for analysis to start 
 anchore-cli image wait ubuntu
